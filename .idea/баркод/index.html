@@ -1,0 +1,209 @@
+
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Barcode Generator</title>
+
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.3/dist/JsBarcode.all.min.js"></script>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#b5c2bf;
+}
+
+.box{
+  max-width:600px;
+  margin:50px auto;
+  background:white;
+  padding:25px;
+  border-radius:15px;
+  text-align:center;
+  box-shadow:0 5px 15px #000;
+}
+
+h1{
+  color:#2f13aa;
+}
+
+input{
+  width:100%;
+  padding:12px;
+  margin:10px 0;
+  box-sizing:border-box;
+  border:1px solid #ccc;
+  border-radius:8px;
+  font-size:16px;
+}
+
+button{
+  padding:12px 18px;
+  margin:5px;
+  border:0;
+  border-radius:8px;
+  background:#2f13aa;
+  color:white;
+  cursor:pointer;
+  font-size:15px;
+}
+
+button:hover{
+  background:#d81d1d;
+}
+
+#barcode{
+  max-width:100%;
+  margin:25px auto;
+}
+
+#msg{
+  font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+<h1>📊 Barcode Generator</h1>
+
+<p>Генерирай CODE128 баркод</p>
+
+<input
+  id="text"
+  placeholder="Въведи код или текст"
+>
+
+<br>
+
+<button onclick="generate()">📊 Генерирай</button>
+<button onclick="clearCode()">🧹 Изчисти</button>
+
+<div>
+<svg id="barcode"></svg>
+</div>
+
+<p id="msg"></p>
+
+<button onclick="download()">📥 Изтегли SVG</button>
+<button onclick="printCode()">🖨️ Печат</button>
+
+</div>
+
+<script>
+
+function generate(){
+
+  let text=document.getElementById("text").value.trim();
+
+  if(!text){
+    document.getElementById("msg").innerText=
+      "⚠️ Въведи код или текст!";
+    return;
+  }
+
+  try{
+
+    JsBarcode("#barcode",text,{
+      format:"CODE128",
+      width:2,
+      height:100,
+      displayValue:true,
+      fontSize:20,
+      margin:10
+    });
+
+    document.getElementById("msg").innerText=
+      "✅ Баркодът е готов!";
+
+  }catch(e){
+
+    document.getElementById("msg").innerText=
+      "❌ Неуспешно създаване на баркода.";
+
+  }
+}
+
+
+function clearCode(){
+
+  document.getElementById("text").value="";
+  document.getElementById("barcode").innerHTML="";
+  document.getElementById("msg").innerText="";
+
+}
+
+
+function download(){
+
+  let svg=document.getElementById("barcode");
+
+  if(!svg.innerHTML){
+    alert("Първо генерирай баркод!");
+    return;
+  }
+
+  let data=new XMLSerializer()
+    .serializeToString(svg);
+
+  let blob=new Blob([data],{
+    type:"image/svg+xml"
+  });
+
+  let url=URL.createObjectURL(blob);
+
+  let a=document.createElement("a");
+
+  a.href=url;
+  a.download="barcode.svg";
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+
+function printCode(){
+
+  let svg=document.getElementById("barcode");
+
+  if(!svg.innerHTML){
+    alert("Първо генерирай баркод!");
+    return;
+  }
+
+  let win=window.open("","_blank");
+
+  win.document.write(`
+    <html>
+    <body style="text-align:center;margin-top:100px">
+      ${svg.outerHTML}
+      <script>
+        window.print();
+      <\/script>
+    </body>
+    </html>
+  `);
+
+  win.document.close();
+}
+
+
+document.getElementById("text")
+.addEventListener("keydown",function(e){
+
+  if(e.key==="Enter"){
+    generate();
+  }
+
+});
+
+</script>
+
+</body>
+</html>
+```
